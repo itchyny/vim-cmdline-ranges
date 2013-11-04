@@ -2,7 +2,7 @@
 " Filename: plugin/vim-cmdline-ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/10/30 22:35:58.
+" Last Change: 2013/11/04 19:01:45.
 " =============================================================================
 
 if exists('g:loaded_vim_cmdline_ranges') && g:loaded_vim_cmdline_ranges
@@ -11,6 +11,35 @@ endif
 
 let s:save_cpo = &cpo
 set cpo&vim
+
+function! s:range_one(motion)
+  if mode() == 'c' && getcmdtype() == ':'
+    let pat = a:motion == 'j' ? '/^$/' : '?^$?'
+    let forward = a:motion == 'j'
+    let endcu = "\<End>\<C-u>"
+    if getcmdline() =~# '^\d*$'
+      let num = max([getcmdline(), 1])
+      let range = forward ? '.,.+' . num : '.-' . num . ',.'
+      return endcu . range
+    elseif getcmdline() =~# '^\.,\(\.\|\$\|\''[a-zA-Z]\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
+      let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?$') + (forward ? 1 : -1)
+      let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
+      let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?$', '', '')
+      let range = cmd . numstr
+      return endcu . (range == '.,.' ? '' : range)
+    elseif getcmdline() =~# '^\(\.\|\$\|\''[a-zA-Z]\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?,\.$'
+      let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?\(,\.\)\@=') + (forward ? 1 : -1)
+      let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
+      let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?,\.$', '', '')
+      let range = cmd . numstr . ',.'
+      return endcu . (range == '.,.' ? '' : range)
+    else
+      return a:motion
+    endif
+  else
+    return a:motion
+  endif
+endfunction
 
 function! s:range_paragraph(motion)
   if mode() == 'c' && getcmdtype() == ':'
@@ -43,6 +72,8 @@ function! s:range(motion, prev, range)
   endif
 endfunction
 
+cnoremap <expr> <Plug>(cmdline-ranges-j) <SID>range_one('j')
+cnoremap <expr> <Plug>(cmdline-ranges-k) <SID>range_one('k')
 cnoremap <expr> <Plug>(cmdline-ranges-}) <SID>range_paragraph('}')
 cnoremap <expr> <Plug>(cmdline-ranges-{) <SID>range_paragraph('{')
 cnoremap <expr> <Plug>(cmdline-ranges-g) <SID>range('g', 'g', '1,.')
