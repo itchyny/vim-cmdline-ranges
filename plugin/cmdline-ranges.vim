@@ -2,7 +2,7 @@
 " Filename: plugin/vim-cmdline-ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/04 19:01:45.
+" Last Change: 2013/11/04 22:30:00.
 " =============================================================================
 
 if exists('g:loaded_vim_cmdline_ranges') && g:loaded_vim_cmdline_ranges
@@ -14,7 +14,6 @@ set cpo&vim
 
 function! s:range_one(motion)
   if mode() == 'c' && getcmdtype() == ':'
-    let pat = a:motion == 'j' ? '/^$/' : '?^$?'
     let forward = a:motion == 'j'
     let endcu = "\<End>\<C-u>"
     if getcmdline() =~# '^\d*$'
