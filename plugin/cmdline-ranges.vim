@@ -2,7 +2,7 @@
 " Filename: plugin/vim-cmdline-ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/04 22:30:00.
+" Last Change: 2013/11/04 22:47:56.
 " =============================================================================
 
 if exists('g:loaded_vim_cmdline_ranges') && g:loaded_vim_cmdline_ranges
@@ -20,13 +20,13 @@ function! s:range_one(motion)
       let num = max([getcmdline(), 1])
       let range = forward ? '.,.+' . num : '.-' . num . ',.'
       return endcu . range
-    elseif getcmdline() =~# '^\.,\(\.\|\$\|\''[a-zA-Z]\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
+    elseif getcmdline() =~# '^\(\.\|\d\+\),\(\.\|\$\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
       let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?$') + (forward ? 1 : -1)
       let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
       let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?$', '', '')
       let range = cmd . numstr
       return endcu . (range == '.,.' ? '' : range)
-    elseif getcmdline() =~# '^\(\.\|\$\|\''[a-zA-Z]\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?,\.$'
+    elseif getcmdline() =~# '^\(\.\|\$\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?,\.$'
       let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?\(,\.\)\@=') + (forward ? 1 : -1)
       let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
       let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?,\.$', '', '')
@@ -77,6 +77,7 @@ cnoremap <expr> <Plug>(cmdline-ranges-}) <SID>range_paragraph('}')
 cnoremap <expr> <Plug>(cmdline-ranges-{) <SID>range_paragraph('{')
 cnoremap <expr> <Plug>(cmdline-ranges-g) <SID>range('g', 'g', '1,.')
 cnoremap <expr> <Plug>(cmdline-ranges-G) <SID>range('G', '', '.,$')
+cnoremap <expr> <Plug>(cmdline-ranges-%) <SID>range('%', '', '1,$')
 
 let g:loaded_vim_cmdline_ranges = 1
 
