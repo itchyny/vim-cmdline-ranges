@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/07 14:16:06.
+" Last Change: 2013/11/08 01:02:38.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -16,7 +16,11 @@ function! cmdline_ranges#range_one(motion)
       let num = max([getcmdline(), 1])
       let range = forward ? '.,.+' . num : '.-' . num . ',.'
       return endcu . range
-    elseif getcmdline() =~# '^\(\.\|\d\+\),\(\.\|\$\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
+    elseif getcmdline() =~# '^\d\+,\.$'
+      let num = max([matchstr(getcmdline(), '\d\+') + (forward ? 1 : -1), 1])
+      let range = num . ',.'
+      return endcu . range
+    elseif getcmdline() =~# '^\.,\(\.\|\$\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
       let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?$') + (forward ? 1 : -1)
       let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
       let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?$', '', '')
