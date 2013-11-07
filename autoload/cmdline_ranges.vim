@@ -1,18 +1,14 @@
 " =============================================================================
-" Filename: plugin/vim-cmdline-ranges.vim
+" Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/04 23:09:12.
+" Last Change: 2013/11/07 14:16:06.
 " =============================================================================
-
-if exists('g:loaded_vim_cmdline_ranges') && g:loaded_vim_cmdline_ranges
-  finish
-endif
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:range_one(motion)
+function! cmdline_ranges#range_one(motion)
   if mode() == 'c' && getcmdtype() == ':'
     let forward = a:motion == 'j'
     let endcu = "\<End>\<C-u>"
@@ -40,7 +36,7 @@ function! s:range_one(motion)
   endif
 endfunction
 
-function! s:range_paragraph(motion)
+function! cmdline_ranges#range_paragraph(motion)
   if mode() == 'c' && getcmdtype() == ':'
     let pat = a:motion == '}' ? '/^$/' : '?^$?'
     let forward = a:motion == '}'
@@ -63,29 +59,13 @@ function! s:range_paragraph(motion)
   endif
 endfunction
 
-function! s:range(motion, prev, range)
+function! cmdline_ranges#range(motion, prev, range)
   if mode() == 'c' && getcmdtype() == ':' && getcmdline() ==# a:prev
     return "\<End>\<C-u>" . a:range
   else
     return a:motion
   endif
 endfunction
-
-cnoremap <expr> <Plug>(cmdline-ranges-j) <SID>range_one('j')
-cnoremap <expr> <Plug>(cmdline-ranges-k) <SID>range_one('k')
-cnoremap <expr> <Plug>(cmdline-ranges-}) <SID>range_paragraph('}')
-cnoremap <expr> <Plug>(cmdline-ranges-{) <SID>range_paragraph('{')
-cnoremap <expr> <Plug>(cmdline-ranges-g) <SID>range('g', 'g', '1,.')
-cnoremap <expr> <Plug>(cmdline-ranges-G) <SID>range('G', '', '.,$')
-cnoremap <expr> <Plug>(cmdline-ranges-%) <SID>range('%', '', '1,$')
-
-if get(g:, 'cmdline_ranges_default_mapping', 1)
-  for k in split('jk}{gG%', '\zs')
-    exec 'cmap ' . k . ' <Plug>(cmdline-ranges-' . k . ')'
-  endfor
-endif
-
-let g:loaded_vim_cmdline_ranges = 1
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
