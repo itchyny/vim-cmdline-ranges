@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 11:09:35.
+" Last Change: 2013/11/08 11:35:46.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -66,6 +66,8 @@ function! s:parserange(string)
     return [s:cursor(), s:add(s:cursor(), matchstr(a:string, '-\?\d\+'))]
   elseif a:string =~# '^\(\.,\$\([+-]\d\+\)\?\|\$\([+-]\d\+\)\?,\.\)$'
     return [s:cursor(), s:add(s:last(), matchstr(getcmdline(), '-\?\d\+'))]
+  elseif a:string =~# '^\(\d\+,\$\([+-]\d\+\)\?\|\$\([+-]\d\+\)\?,\d\+\)$'
+    return [s:add(s:last(), matchstr(getcmdline(), '\$\@<=-\?\d\+')), s:absolute(matchstr(a:string, '\<\(^\|[^+-]\)\@<=\d\+'))]
   else
     return []
   endif
