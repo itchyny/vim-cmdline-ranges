@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 18:12:59.
+" Last Change: 2013/11/08 20:05:41.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -50,10 +50,11 @@ function! s:strrange(range)
     endif
   endif
   if from.line < to.line
-    return from.string . ',' . to.string
+    let ret = from.string . ',' . to.string
   else
-    return to.string . ',' . from.string
+    let ret = to.string . ',' . from.string
   endif
+  return ret ==# '1,$' ? '%' : ret
 endfunction
 
 function! s:parsenumber(numstr)
@@ -76,6 +77,8 @@ function! s:parserange(string, prev)
     let flg = 0
     if string ==# a:prev && i == 0
       return [s:cursor(), s:cursor()]
+    elseif string ==# '%' && i == 0
+      return [s:absolute(1), s:last()]
     elseif string =~# '^\d\+'
       let str = matchstr(string, '^\d\+')
       let num = str + 0
