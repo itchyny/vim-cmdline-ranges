@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 20:05:41.
+" Last Change: 2013/11/08 20:56:30.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -97,6 +97,8 @@ function! s:parserange(string, prev)
       let str = matchstr(string, '^[+-]\d\+')
       if flg
         let num += s:parsenumber(str)
+      elseif range[-1].string ==# '.' && str =~# '^[+-]0$'
+        let range[-1].string .= str
       else
         let range[-1] = s:add(range[-1], s:parsenumber(str))
       endif
@@ -127,22 +129,25 @@ function! s:parserange(string, prev)
   return []
 endfunction
 
+function! s:point(pos)
+  return 8 * !(a:pos.string ==# '.') + 4 * (a:pos.string =~# '^\$') + 2 * (a:pos.string =~# '^\.')
+endfunction
+
 let s:numnum = 1
 function! s:addrange(range, diff)
-  if a:range[0].line == line('.') && a:range[0].string ==# '.'
-    return [a:range[0], s:add(a:range[1], a:diff)]
-  elseif a:range[0].string =~# '^\d\+$' && a:range[1].string =~# '^\d\+$'
+  if a:range[0].string =~# '^\d\+$' && a:range[1].string =~# '^\d\+$'
+        \ || a:range[0].string =~# '^\..\+$' && a:range[1].string =~# '^\..\+$'
     if a:range[0].line == a:range[1].line
       let s:numnum = !s:numnum
     endif
-    return [s:add(a:range[s:numnum], a:diff), a:range[!s:numnum]]
-  elseif a:range[0].string =~# '^\$'
-    return [s:add(a:range[0], a:diff), a:range[1]]
-  elseif a:range[1].string =~# '^\$'
-    return [s:add(a:range[1], a:diff), a:range[0]]
-  else
-    return [s:add(a:range[0], a:diff), a:range[1]]
+    let ret = [s:add(a:range[s:numnum], a:diff), a:range[!s:numnum]]
+    if ret[0].string ==# '.'
+      let ret[0].string .= '+0'
+    endif
+    return ret
   endif
+  let idx = s:point(a:range[0]) < s:point(a:range[1])
+  return [s:add(a:range[idx], a:diff), a:range[!idx]]
 endfunction
 
 function! s:deal(cmdline, diff)
