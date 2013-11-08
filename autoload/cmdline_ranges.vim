@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 10:58:57.
+" Last Change: 2013/11/08 11:01:55.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -97,19 +97,17 @@ function! cmdline_ranges#range_one(motion)
   if mode() == 'c' && getcmdtype() == ':'
     let forward = a:motion == 'j'
     let endcu = "\<End>\<C-u>"
-    let line = line('.')
-    let lastline = line('$')
     let result = s:deal(getcmdline(), forward ? 1 : -1)
     if result != -1
       return endcu . result
     endif
-    if getcmdline() =~# '^\.,\(\.\|\$\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
+    if getcmdline() =~# '^\.,\(/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?$'
       let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?$') + (forward ? 1 : -1)
       let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
       let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?$', '', '')
       let range = cmd . numstr
       return endcu . (range == '.,.' ? '' : range)
-    elseif getcmdline() =~# '^\(\.\|\$\|/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?,\.$'
+    elseif getcmdline() =~# '^\(/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)*\([+-]\d\+\)\?,\.$'
       let num = matchstr(getcmdline(), '\(\(+\@<=\|-\)\d\+\)\?\(,\.\)\@=') + (forward ? 1 : -1)
       let numstr = num > 0 ? '+' . num : num == 0 ? '' : '' . num
       let cmd = substitute(getcmdline(), '\([+-]\d\+\)\?,\.$', '', '')
