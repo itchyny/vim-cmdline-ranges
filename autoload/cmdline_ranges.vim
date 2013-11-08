@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/09 00:39:53.
+" Last Change: 2013/11/09 00:45:05.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -28,6 +28,15 @@ endfunction
 
 function! s:strdiff(num)
   return a:num == 0 ? '' : a:num > 0 ? '+' . a:num : '' . a:num
+endfunction
+
+function! s:unpattern(pos)
+  if a:pos.string =~# '^[/?]'
+    let num = s:parsenumber(matchstr(a:pos.string, '[+-]\d\+$'))
+    return s:add(s:cursor(), num)
+  else
+    return a:pos
+  endif
 endfunction
 
 function! s:add(pos, diff)
@@ -225,7 +234,7 @@ function! cmdline_ranges#range(motion, prev)
         endif
       else
         if a:motion ==# '%'
-          return endcu . s:strrange([s:add(range[0], -line('$')), s:add(range[1], line('$'))])
+          return endcu . s:strrange([s:add(s:unpattern(range[0]), -line('$')), s:add(s:unpattern(range[1]), line('$'))])
         elseif len(range) == 3
           let newrange = s:addrange(range, -line('$'))
           if newrange[0].line == 1
