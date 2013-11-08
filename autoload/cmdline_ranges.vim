@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 11:35:46.
+" Last Change: 2013/11/08 18:12:59.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -17,7 +17,8 @@ function! s:last()
 endfunction
 
 function! s:absolute(line)
-  return { 'line': a:line, 'string': '' . a:line }
+  let line = max([min([a:line, line('$')]), 1])
+  return { 'line': line, 'string': '' . line }
 endfunction
 
 function! s:strdiff(num)
@@ -55,22 +56,72 @@ function! s:strrange(range)
   endif
 endfunction
 
-function! s:parserange(string)
-  if a:string =~# '^\(\d*\|\.,\.\)$'
-    return [s:cursor(), s:cursor()]
-  elseif a:string =~# '^\(\.,\d\+\|\d\+,\.\)$'
-    return [s:cursor(), s:absolute(max([matchstr(a:string, '\d\+'), 1]))]
-  elseif a:string =~# '^\(\d\+,\d\+\)$'
-    return [s:absolute(matchstr(a:string, '\d\+')), s:absolute(matchstr(a:string, ',\@<=\d\+'))]
-  elseif a:string =~# '^\(\.,\.[+-]\d\+\|\.[+-]\d\+,\.\)$'
-    return [s:cursor(), s:add(s:cursor(), matchstr(a:string, '-\?\d\+'))]
-  elseif a:string =~# '^\(\.,\$\([+-]\d\+\)\?\|\$\([+-]\d\+\)\?,\.\)$'
-    return [s:cursor(), s:add(s:last(), matchstr(getcmdline(), '-\?\d\+'))]
-  elseif a:string =~# '^\(\d\+,\$\([+-]\d\+\)\?\|\$\([+-]\d\+\)\?,\d\+\)$'
-    return [s:add(s:last(), matchstr(getcmdline(), '\$\@<=-\?\d\+')), s:absolute(matchstr(a:string, '\<\(^\|[^+-]\)\@<=\d\+'))]
+function! s:parsenumber(numstr)
+  if len(a:numstr)
+    if a:numstr[0] == '+'
+      return 0 + a:numstr[1:]
+    else
+      return 0 + a:numstr
+    endif
   else
-    return []
+    return 0
   endif
+endfunction
+
+function! s:parserange(string, prev)
+  let string = a:string
+  let range = []
+  for i in [0, 1]
+    let num = -1
+    let flg = 0
+    if string ==# a:prev && i == 0
+      return [s:cursor(), s:cursor()]
+    elseif string =~# '^\d\+'
+      let str = matchstr(string, '^\d\+')
+      let num = str + 0
+      let flg = 1
+    elseif string =~# '^\.'
+      let str = matchstr(string, '^\.')
+      call add(range, s:cursor())
+    elseif string =~# '^\$'
+      let str = matchstr(string, '^\$')
+      call add(range, s:last())
+    else
+      return []
+    endif
+    let string = string[len(str):]
+    while string =~# '^[+-]\d\+'
+      let str = matchstr(string, '^[+-]\d\+')
+      if flg
+        let num += s:parsenumber(str)
+      else
+        let range[-1] = s:add(range[-1], s:parsenumber(str))
+      endif
+      let string = string[len(str):]
+    endwhile
+    if i == 0
+      if string =~# '^,'
+        let string = string[1:]
+        if flg
+          call add(range, s:absolute(num))
+        endif
+      elseif flg && string ==# a:prev
+        return [s:cursor(), s:cursor(), num]
+      else
+        return []
+      endif
+    else
+      if string ==# a:prev
+        if flg
+          call add(range, s:absolute(num))
+        endif
+        return len(range) == 2 ? range : []
+      else
+        return []
+      endif
+    endif
+  endfor
+  return []
 endfunction
 
 let s:numnum = 1
@@ -82,21 +133,19 @@ function! s:addrange(range, diff)
       let s:numnum = !s:numnum
     endif
     return [s:add(a:range[s:numnum], a:diff), a:range[!s:numnum]]
+  elseif a:range[0].string =~# '^\$'
+    return [s:add(a:range[0], a:diff), a:range[1]]
+  elseif a:range[1].string =~# '^\$'
+    return [s:add(a:range[1], a:diff), a:range[0]]
   else
     return [s:add(a:range[0], a:diff), a:range[1]]
   endif
 endfunction
 
 function! s:deal(cmdline, diff)
-  let range = s:parserange(a:cmdline)
+  let range = s:parserange(a:cmdline, '')
   if len(range)
-    if a:cmdline =~# '^0\+$'
-      let diff = 0
-    elseif a:cmdline =~# '^\d\+$'
-      let diff = a:diff * max([a:cmdline, 1])
-    else
-      let diff = a:diff
-    endif
+    let diff = (len(range) == 3 ? range[2] : 1) * a:diff
     return s:strrange(s:addrange(range, diff))
   else
     return -1
@@ -154,9 +203,36 @@ function! cmdline_ranges#range_paragraph(motion)
   endif
 endfunction
 
-function! cmdline_ranges#range(motion, prev, range)
-  if mode() == 'c' && getcmdtype() == ':' && getcmdline() ==# a:prev
-    return "\<End>\<C-u>" . a:range
+function! cmdline_ranges#range(motion, prev)
+  if mode() == 'c' && getcmdtype() == ':'
+    let forward = a:motion ==# 'G'
+    let endcu = "\<End>\<C-u>"
+    let range = s:parserange(getcmdline(), a:prev)
+    if len(range)
+      if getcmdline() ==# a:prev
+        if a:motion ==# '%'
+          return endcu . s:strrange([s:absolute(1), s:last()])
+        else
+          return endcu . s:strrange([range[0], forward ? s:last() : s:absolute(1)])
+        endif
+      else
+        if a:motion ==# '%'
+          return endcu . s:strrange([s:add(range[0], -line('$')), s:add(range[1], line('$'))])
+        elseif len(range) == 3
+          let newrange = s:addrange(range, -line('$'))
+          if newrange[0].line == 1
+            let newrange[0] = s:absolute(range[2])
+          else
+            let newrange[1] = s:absolute(range[2])
+          endif
+          return endcu . s:strrange(newrange)
+        else
+          return endcu . s:strrange(s:addrange(range, (forward ? 1 : -1) * line('$')))
+        endif
+      endif
+    else
+      return a:motion
+    endif
   else
     return a:motion
   endif
