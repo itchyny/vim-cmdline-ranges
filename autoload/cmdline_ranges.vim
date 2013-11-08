@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 05:32:43.
+" Last Change: 2013/11/08 10:45:15.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -80,7 +80,7 @@ endfunction
 function! s:deal(cmdline, diff)
   let range = s:parserange(a:cmdline)
   if len(range)
-    let diff = a:cmdline =~# '^\d*$' ? a:diff * max([a:cmdline, 1]) : a:diff
+    let diff = a:cmdline =~# '^0\+$' ? 0 : a:cmdline =~# '^\d*$' ? a:diff * max([a:cmdline, 1]) : a:diff
     return s:strrange(s:addrange(range, diff))
   else
     return -1
