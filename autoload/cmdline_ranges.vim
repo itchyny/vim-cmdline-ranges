@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/08 11:01:55.
+" Last Change: 2013/11/08 11:09:35.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -60,6 +60,8 @@ function! s:parserange(string)
     return [s:cursor(), s:cursor()]
   elseif a:string =~# '^\(\.,\d\+\|\d\+,\.\)$'
     return [s:cursor(), s:absolute(max([matchstr(a:string, '\d\+'), 1]))]
+  elseif a:string =~# '^\(\d\+,\d\+\)$'
+    return [s:absolute(matchstr(a:string, '\d\+')), s:absolute(matchstr(a:string, ',\@<=\d\+'))]
   elseif a:string =~# '^\(\.,\.[+-]\d\+\|\.[+-]\d\+,\.\)$'
     return [s:cursor(), s:add(s:cursor(), matchstr(a:string, '-\?\d\+'))]
   elseif a:string =~# '^\(\.,\$\([+-]\d\+\)\?\|\$\([+-]\d\+\)\?,\.\)$'
@@ -69,9 +71,15 @@ function! s:parserange(string)
   endif
 endfunction
 
+let s:numnum = 1
 function! s:addrange(range, diff)
   if a:range[0].line == line('.') && a:range[0].string ==# '.'
     return [a:range[0], s:add(a:range[1], a:diff)]
+  elseif a:range[0].string =~# '^\d\+$' && a:range[1].string =~# '^\d\+$'
+    if a:range[0].line == a:range[1].line
+      let s:numnum = !s:numnum
+    endif
+    return [s:add(a:range[s:numnum], a:diff), a:range[!s:numnum]]
   else
     return [s:add(a:range[0], a:diff), a:range[1]]
   endif
