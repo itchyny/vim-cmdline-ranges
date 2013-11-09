@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/09 12:15:29.
+" Last Change: 2013/11/09 13:05:34.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -91,7 +91,7 @@ function! s:parserange(string, prev)
   let string = a:string
   let range = []
   for i in [0, 1]
-    let num = -1
+    let num = 0
     let flg = 0
     if string ==# a:prev && i == 0
       return [s:cursor(), s:cursor()]
