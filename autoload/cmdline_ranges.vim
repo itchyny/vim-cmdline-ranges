@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/09 00:45:05.
+" Last Change: 2013/11/09 12:15:29.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -118,7 +118,7 @@ function! s:parserange(string, prev)
       let str = matchstr(string, '^[+-]\d\+')
       if flg
         let num += s:parsenumber(str)
-      elseif range[-1].string ==# '.' && str =~# '^[+-]0$'
+      elseif (range[-1].string ==# '.' || range[-1].string ==# '$') && str =~# '^[+-]0$'
         let range[-1].string .= str
       else
         let range[-1] = s:add(range[-1], s:parsenumber(str))
@@ -168,6 +168,8 @@ function! s:addrange(range, diff)
     let ret = [s:add(a:range[s:idx], a:diff), a:range[!s:idx]]
     if ret[0].string ==# '.'
       let ret[0].string .= '+0'
+    elseif ret[0].string ==# '$'
+      let ret[0].string .= '-0'
     endif
     let s:range = ret[0].string . ',' . ret[1].string
     return ret
