@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/10 11:19:31.
+" Last Change: 2013/11/12 01:04:48.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -151,7 +151,7 @@ function! s:parserange(string, prev)
 endfunction
 
 function! s:point(pos)
-  return 8 * !(a:pos.string ==# '.') + 4 * (a:pos.string =~# '^\$') + 2 * (a:pos.string =~# '^\.')
+  return 8 * !(a:pos.string ==# '.') + 4 * (a:pos.string =~# '^\$') + 2 * (a:pos.string =~# '^\.') + !(a:pos.string =~# '^[/?]')
 endfunction
 
 let s:idx = 1
@@ -183,6 +183,10 @@ function! s:addrange(range, diff)
   return ret
 endfunction
 
+function! s:index(range)
+  return s:addrange(a:range, -line('$'))[1].line == 1
+endfunction
+
 function! cmdline_ranges#range_one(motion)
   if mode() == 'c' && getcmdtype() == ':'
     let forward = a:motion == 'j'
@@ -201,19 +205,22 @@ endfunction
 
 function! cmdline_ranges#range_paragraph(motion)
   if mode() == 'c' && getcmdtype() == ':'
-    let pat = a:motion == '}' ? '/^$/' : '?^$?'
     let forward = a:motion == '}'
+    let diff = forward ? 1 : -1
     let endcu = "\<End>\<C-u>"
-    if getcmdline() =~# '^\d*$'
-      let reppat = repeat(pat, max([getcmdline(), 1]))
-      let range = forward ? '.,' . reppat : reppat . ',.'
-      return endcu . range
-    elseif getcmdline() =~# '^\.,\(/\^\$/\)\+$'
-      let range = forward ? getcmdline() . pat : substitute(getcmdline(), '/\^\$/', '', '')
-      return endcu . (range == '.,' ? '' : range)
-    elseif getcmdline() =~# '^\(?\^\$?\)\+,\.$'
-      let range = !forward ? pat . getcmdline() : substitute(getcmdline(), '?\^\$?', '', '')
-      return endcu . (range == ',.' ? '' : range)
+    let range = s:parserange(getcmdline(), '')
+    if len(range)
+      let num = len(range) > 2 ? range[2] : 1
+      let line = range[s:index(range)].line
+      let start_line = line
+      let last = line('$')
+      while num > 0 && 1 <= line && line <= last
+        let line += diff
+        if getline(line) ==# ''
+          let num -= 1
+        endif
+      endwhile
+      return endcu . s:strrange(s:addrange(range, line - start_line))
     else
       return a:motion
     endif
@@ -238,13 +245,8 @@ function! cmdline_ranges#range(motion, prev)
         if a:motion ==# '%'
           return endcu . s:strrange([s:add(s:unpattern(range[0]), -line('$')), s:add(s:unpattern(range[1]), line('$'))])
         elseif len(range) == 3
-          let newrange = s:addrange(range, -line('$'))
-          if newrange[0].line == 1
-            let newrange[0] = s:absolute(range[2])
-          else
-            let newrange[1] = s:absolute(range[2])
-          endif
-          return endcu . s:strrange(newrange)
+          let range[s:index(range)] = s:absolute(range[2])
+          return endcu . s:strrange(range)
         else
           return endcu . s:strrange(s:addrange(range, (forward ? 1 : -1) * line('$')))
         endif
