@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 09:55:43.
+" Last Change: 2013/11/12 10:46:41.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -37,6 +37,11 @@ function! s:unpattern(pos)
   else
     return a:pos
   endif
+endfunction
+
+function! s:range(range)
+  let range = [a:range[0].line, a:range[1].line]
+  return range[0] >= range[1] ? [range[1], range[0]] : range
 endfunction
 
 function! s:add(pos, diff)
@@ -165,16 +170,14 @@ endfunction
 function! s:addrange(range, diff)
   if s:same(a:range)
     let idx = s:index(a:range)
-    if (a:range[!idx].line - a:range[idx].line + (a:diff >= 0 ? 1 : -1)) * (a:range[!idx].line - a:range[idx].line - a:diff) < 0
-      let s:idx = !s:idx
-    endif
     let ret = [s:add(a:range[idx], a:diff), a:range[!idx]]
     if ret[0].string ==# '.'
       let ret[0].string .= '+0'
     elseif ret[0].string ==# '$'
       let ret[0].string .= '-0'
     endif
-    let s:range = s:strrange(ret)
+    let s:prevrange = s:range(ret)
+    let s:curpos = ret[0].line
     return ret
   endif
   let idx = s:index(a:range)
@@ -186,14 +189,14 @@ function! s:addrange(range, diff)
   return ret
 endfunction
 
-let s:idx = 1
-let s:range = ''
+let s:prevrange = []
+let s:curpos = 0
 function! s:index(range)
   if s:same(a:range)
-    if s:range != s:strrange(a:range)
-      let s:idx = 1
+    if s:prevrange != s:range(a:range)
+      return 1
     endif
-    return s:idx
+    return index(s:prevrange, s:curpos)
   endif
   let idx = s:point(a:range[0]) < s:point(a:range[1])
   return idx
