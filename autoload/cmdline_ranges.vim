@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 09:53:41.
+" Last Change: 2013/11/12 09:55:43.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -164,7 +164,7 @@ endfunction
 
 function! s:addrange(range, diff)
   if s:same(a:range)
-    let idx = s:index(a:range, a:diff)
+    let idx = s:index(a:range)
     if (a:range[!idx].line - a:range[idx].line + (a:diff >= 0 ? 1 : -1)) * (a:range[!idx].line - a:range[idx].line - a:diff) < 0
       let s:idx = !s:idx
     endif
@@ -188,7 +188,7 @@ endfunction
 
 let s:idx = 1
 let s:range = ''
-function! s:index(range, ...)
+function! s:index(range)
   if s:same(a:range)
     if s:range != s:strrange(a:range)
       let s:idx = 1
