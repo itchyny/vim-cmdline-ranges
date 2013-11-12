@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 11:24:43.
+" Last Change: 2013/11/12 11:34:52.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -81,11 +81,12 @@ function! s:strrange(range)
 endfunction
 
 function! s:parsenumber(numstr)
-  if len(a:numstr)
-    if a:numstr[0] == '+'
-      return 0 + a:numstr[1:]
+  let numstr = substitute(a:numstr, '\s\+', '', 'g')
+  if len(numstr)
+    if numstr[0] == '+'
+      return 0 + numstr[1:]
     else
-      return 0 + a:numstr
+      return 0 + numstr
     endif
   else
     return 0
@@ -93,6 +94,7 @@ function! s:parsenumber(numstr)
 endfunction
 
 function! s:parserange(string, prev)
+  " TODO:    :.jjjj
   let string = a:string
   let str = matchstr(string, '^[: \t]\+')
   let string = string[len(str):]
@@ -121,12 +123,12 @@ function! s:parserange(string, prev)
       return []
     endif
     let string = string[len(str):]
-    while string =~# '^[+-]\d\+\s*'
-      let str = matchstr(string, '^[+-]\d\+\s*')
+    while string =~# '^[+-]\s*\d\+\s*'
+      let str = matchstr(string, '^[+-]\s*\d\+\s*')
       if flg
         let num += s:parsenumber(str)
-      elseif (range[-1].string ==# '.' || range[-1].string ==# '$') && str =~# '^[+-]0'
-        let range[-1].string .= str[:1]
+      elseif (range[-1].string ==# '.' || range[-1].string ==# '$') && str =~# '^[+-]\s*0'
+        let range[-1].string .= substitute(str, '\s\+', '', 'g')
       else
         let range[-1] = s:add(range[-1], s:parsenumber(str))
       endif
