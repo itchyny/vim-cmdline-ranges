@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 11:34:52.
+" Last Change: 2013/11/12 12:46:07.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -62,6 +62,9 @@ function! s:add(pos, diff)
 endfunction
 
 function! s:strrange(range)
+  if len(a:range) == 1
+    return a:range[0].string
+  endif
   let [from, to; rest] = a:range
   if from.line == to.line && from.string !~# '^[/?]' && to.string !~# '^[/?]'
     if from.string ==# '.' && to.string ==# '.'
@@ -94,7 +97,6 @@ function! s:parsenumber(numstr)
 endfunction
 
 function! s:parserange(string, prev)
-  " TODO:    :.jjjj
   let string = a:string
   let str = matchstr(string, '^[: \t]\+')
   let string = string[len(str):]
@@ -143,6 +145,8 @@ function! s:parserange(string, prev)
         endif
       elseif flg && string ==# a:prev
         return [s:cursor(), s:cursor(), num]
+      elseif string ==# a:prev
+        return range
       else
         return []
       endif
@@ -171,6 +175,9 @@ function! s:same(range)
 endfunction
 
 function! s:addrange(range, diff)
+  if len(a:range) == 1
+    return [s:add(a:range[0], a:diff)]
+  endif
   if s:same(a:range)
     let idx = s:index(a:range)
     let ret = [s:add(a:range[idx], a:diff), a:range[!idx]]
@@ -195,6 +202,9 @@ endfunction
 let s:prevrange = []
 let s:curpos = 0
 function! s:index(range)
+  if len(a:range) == 1
+    return 0
+  endif
   if s:same(a:range)
     if s:prevrange != s:range(a:range)
       return 1
@@ -242,7 +252,7 @@ function! cmdline_ranges#{char2nr('j')}(range, prev)
 endfunction
 
 function! cmdline_ranges#{char2nr('%')}(range, prev)
-  if getcmdline() ==# a:prev
+  if getcmdline() ==# a:prev || len(a:range) == 1
     return [s:absolute(1), s:last()]
   else
     return [s:add(s:unpattern(a:range[0]), -line('$')), s:add(s:unpattern(a:range[1]), line('$'))]
