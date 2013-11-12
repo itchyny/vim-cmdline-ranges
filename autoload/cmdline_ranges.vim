@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 12:46:07.
+" Last Change: 2013/11/12 13:25:04.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -252,7 +252,7 @@ function! cmdline_ranges#{char2nr('j')}(range, prev)
 endfunction
 
 function! cmdline_ranges#{char2nr('%')}(range, prev)
-  if getcmdline() ==# a:prev || len(a:range) == 1
+  if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
     return [s:absolute(1), s:last()]
   else
     return [s:add(s:unpattern(a:range[0]), -line('$')), s:add(s:unpattern(a:range[1]), line('$'))]
@@ -261,7 +261,7 @@ endfunction
 
 function! s:gG(range, prev, forward)
   let range = deepcopy(a:range)
-  if getcmdline() ==# a:prev
+  if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev
     return [range[0], a:forward ? s:last() : s:absolute(1)]
   else
     if len(range) == 3
