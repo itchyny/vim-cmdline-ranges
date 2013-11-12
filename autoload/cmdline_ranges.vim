@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 09:04:09.
+" Last Change: 2013/11/12 09:53:41.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -156,27 +156,28 @@ function! s:point(pos)
   return 8 * !(a:pos.string ==# '.') + 4 * (a:pos.string =~# '^\$') + 2 * (a:pos.string =~# '^\.') + !(a:pos.string =~# '^[/?]')
 endfunction
 
-let s:idx = 1
-let s:range = ''
-function! s:addrange(range, diff)
-  if a:range[0].string =~# '^\d\+$' && a:range[1].string =~# '^\d\+$'
+function! s:same(range)
+  return a:range[0].string =~# '^\d\+$' && a:range[1].string =~# '^\d\+$'
         \ || a:range[0].string =~# '^\..\+$' && a:range[1].string =~# '^\..\+$'
         \ || a:range[0].string =~# '^\$.\+$' && a:range[1].string =~# '^\$.\+$'
-    if s:range != a:range[0].string . ',' . a:range[1].string
-      let s:idx = 1
-    elseif a:range[0].line == a:range[1].line
+endfunction
+
+function! s:addrange(range, diff)
+  if s:same(a:range)
+    let idx = s:index(a:range, a:diff)
+    if (a:range[!idx].line - a:range[idx].line + (a:diff >= 0 ? 1 : -1)) * (a:range[!idx].line - a:range[idx].line - a:diff) < 0
       let s:idx = !s:idx
     endif
-    let ret = [s:add(a:range[s:idx], a:diff), a:range[!s:idx]]
+    let ret = [s:add(a:range[idx], a:diff), a:range[!idx]]
     if ret[0].string ==# '.'
       let ret[0].string .= '+0'
     elseif ret[0].string ==# '$'
       let ret[0].string .= '-0'
     endif
-    let s:range = ret[0].string . ',' . ret[1].string
+    let s:range = s:strrange(ret)
     return ret
   endif
-  let idx = s:point(a:range[0]) < s:point(a:range[1])
+  let idx = s:index(a:range)
   let ret = deepcopy(a:range)
   let ret[idx] = s:add(a:range[idx], a:diff)
   if ret[idx].string ==# '.' && ret[!idx].string =~# '^\d\+$'
@@ -185,8 +186,17 @@ function! s:addrange(range, diff)
   return ret
 endfunction
 
-function! s:index(range)
-  return s:addrange(a:range, -line('$'))[1].line == 1
+let s:idx = 1
+let s:range = ''
+function! s:index(range, ...)
+  if s:same(a:range)
+    if s:range != s:strrange(a:range)
+      let s:idx = 1
+    endif
+    return s:idx
+  endif
+  let idx = s:point(a:range[0]) < s:point(a:range[1])
+  return idx
 endfunction
 
 function! s:paragraph(range, prev, forward)
