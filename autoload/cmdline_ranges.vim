@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 01:04:48.
+" Last Change: 2013/11/12 09:04:09.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -89,6 +89,8 @@ endfunction
 
 function! s:parserange(string, prev)
   let string = a:string
+  let str = matchstr(string, '^[: ]\+')
+  let string = string[len(str):]
   let range = []
   for i in [0, 1]
     let num = 0
@@ -187,70 +189,78 @@ function! s:index(range)
   return s:addrange(a:range, -line('$'))[1].line == 1
 endfunction
 
-function! cmdline_ranges#range_one(motion)
-  if mode() == 'c' && getcmdtype() == ':'
-    let forward = a:motion == 'j'
-    let endcu = "\<End>\<C-u>"
-    let range = s:parserange(getcmdline(), '')
-    if len(range)
-      let diff = (len(range) == 3 ? range[2] : 1) * (forward ? 1 : -1)
-      return endcu . s:strrange(s:addrange(range, diff))
-    else
-      return a:motion
+function! s:paragraph(range, prev, forward)
+  let num = len(a:range) > 2 ? a:range[2] : 1
+  let line = a:range[s:index(a:range)].line
+  let start_line = line
+  let last = line('$')
+  let diff = a:forward ? 1 : -1
+  while num > 0 && 1 <= line && line <= last
+    let line += diff
+    if getline(line) ==# ''
+      let num -= 1
     endif
+  endwhile
+  return s:addrange(a:range, line - start_line)
+endfunction
+
+function! cmdline_ranges#{char2nr('{')}(range, prev)
+  return s:paragraph(a:range, a:prev, 0)
+endfunction
+
+function! cmdline_ranges#{char2nr('}')}(range, prev)
+  return s:paragraph(a:range, a:prev, 1)
+endfunction
+
+function! s:jk(range, prev, forward)
+  let diff = (len(a:range) == 3 ? a:range[2] : 1) * (a:forward ? 1 : -1)
+  return s:addrange(a:range, diff)
+endfunction
+
+function! cmdline_ranges#{char2nr('k')}(range, prev)
+  return s:jk(a:range, a:prev, 0)
+endfunction
+
+function! cmdline_ranges#{char2nr('j')}(range, prev)
+  return s:jk(a:range, a:prev, 1)
+endfunction
+
+function! cmdline_ranges#{char2nr('%')}(range, prev)
+  if getcmdline() ==# a:prev
+    return [s:absolute(1), s:last()]
   else
-    return a:motion
+    return [s:add(s:unpattern(a:range[0]), -line('$')), s:add(s:unpattern(a:range[1]), line('$'))]
   endif
 endfunction
 
-function! cmdline_ranges#range_paragraph(motion)
-  if mode() == 'c' && getcmdtype() == ':'
-    let forward = a:motion == '}'
-    let diff = forward ? 1 : -1
-    let endcu = "\<End>\<C-u>"
-    let range = s:parserange(getcmdline(), '')
-    if len(range)
-      let num = len(range) > 2 ? range[2] : 1
-      let line = range[s:index(range)].line
-      let start_line = line
-      let last = line('$')
-      while num > 0 && 1 <= line && line <= last
-        let line += diff
-        if getline(line) ==# ''
-          let num -= 1
-        endif
-      endwhile
-      return endcu . s:strrange(s:addrange(range, line - start_line))
-    else
-      return a:motion
-    endif
+function! s:gG(range, prev, forward)
+  let range = deepcopy(a:range)
+  if getcmdline() ==# a:prev
+    return [range[0], a:forward ? s:last() : s:absolute(1)]
   else
-    return a:motion
+    if len(range) == 3
+      let range[s:index(range)] = s:absolute(range[2])
+      return range
+    else
+      return s:addrange(range, (a:forward ? 1 : -1) * line('$'))
+    endif
   endif
+endfunction
+
+function! cmdline_ranges#{char2nr('g')}(range, prev)
+  return s:gG(a:range, a:prev, 0)
+endfunction
+
+function! cmdline_ranges#{char2nr('G')}(range, prev)
+  return s:gG(a:range, a:prev, 1)
 endfunction
 
 function! cmdline_ranges#range(motion, prev)
   if mode() == 'c' && getcmdtype() == ':'
-    let forward = a:motion ==# 'G'
     let endcu = "\<End>\<C-u>"
     let range = s:parserange(getcmdline(), a:prev)
     if len(range)
-      if getcmdline() ==# a:prev
-        if a:motion ==# '%'
-          return endcu . s:strrange([s:absolute(1), s:last()])
-        else
-          return endcu . s:strrange([range[0], forward ? s:last() : s:absolute(1)])
-        endif
-      else
-        if a:motion ==# '%'
-          return endcu . s:strrange([s:add(s:unpattern(range[0]), -line('$')), s:add(s:unpattern(range[1]), line('$'))])
-        elseif len(range) == 3
-          let range[s:index(range)] = s:absolute(range[2])
-          return endcu . s:strrange(range)
-        else
-          return endcu . s:strrange(s:addrange(range, (forward ? 1 : -1) * line('$')))
-        endif
-      endif
+      return endcu . s:strrange(cmdline_ranges#{char2nr(a:motion)}(range, a:prev))
     else
       return a:motion
     endif
