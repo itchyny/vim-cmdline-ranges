@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 10:46:41.
+" Last Change: 2013/11/12 11:24:43.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -94,7 +94,7 @@ endfunction
 
 function! s:parserange(string, prev)
   let string = a:string
-  let str = matchstr(string, '^[: ]\+')
+  let str = matchstr(string, '^[: \t]\+')
   let string = string[len(str):]
   let range = []
   for i in [0, 1]
@@ -102,39 +102,40 @@ function! s:parserange(string, prev)
     let flg = 0
     if string ==# a:prev && i == 0
       return [s:cursor(), s:cursor()]
-    elseif string ==# '%' && i == 0
+    elseif string =~# '%\s*' && i == 0
       return [s:absolute(1), s:last()]
-    elseif string =~# '^\d\+'
-      let str = matchstr(string, '^\d\+')
+    elseif string =~# '^\d\+\s*'
+      let str = matchstr(string, '^\d\+\s*')
       let num = str + 0
       let flg = 1
-    elseif string =~# '^\.'
-      let str = matchstr(string, '^\.')
+    elseif string =~# '^\.\s*'
+      let str = matchstr(string, '^\.\s*')
       call add(range, s:cursor())
     elseif string =~# '^\$'
-      let str = matchstr(string, '^\$')
+      let str = matchstr(string, '^\$\s*')
       call add(range, s:last())
-    elseif string =~# '^\(/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)\+'
-      let str = matchstr(string, '^\(/\([^/]\|\\/\)\+/\|?\([^?]\|\\?\)\+?\)\+')
+    elseif string =~# '^\(/\([^/]\|\\/\)\+/\s*\|?\([^?]\|\\?\)\+?\s*\)\+'
+      let str = matchstr(string, '^\(/\([^/]\|\\/\)\+/\s*\|?\([^?]\|\\?\)\+?\s*\)\+')
       call add(range, s:pattern(str))
     else
       return []
     endif
     let string = string[len(str):]
-    while string =~# '^[+-]\d\+'
-      let str = matchstr(string, '^[+-]\d\+')
+    while string =~# '^[+-]\d\+\s*'
+      let str = matchstr(string, '^[+-]\d\+\s*')
       if flg
         let num += s:parsenumber(str)
-      elseif (range[-1].string ==# '.' || range[-1].string ==# '$') && str =~# '^[+-]0$'
-        let range[-1].string .= str
+      elseif (range[-1].string ==# '.' || range[-1].string ==# '$') && str =~# '^[+-]0'
+        let range[-1].string .= str[:1]
       else
         let range[-1] = s:add(range[-1], s:parsenumber(str))
       endif
       let string = string[len(str):]
     endwhile
     if i == 0
-      if string =~# '^,'
-        let string = string[1:]
+      if string =~# '^\s*,\s*'
+        let str = matchstr(string, '^\s*,\s*')
+        let string = string[len(str):]
         if flg
           call add(range, s:absolute(num))
         endif
