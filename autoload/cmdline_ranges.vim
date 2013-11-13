@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/14 01:26:35.
+" Last Change: 2013/11/14 01:30:19.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -52,9 +52,9 @@ endfunction
 function! s:add(pos, diff)
   let pos = copy(a:pos)
   let pos.line = max([min([a:pos.line + a:diff, line('$')]), 1])
-  if pos.string[0] ==# '.'
+  if pos.string =~# '^\.'
     let pos.string = '.' . s:strdiff(pos.line - line('.'))
-  elseif pos.string[0] ==# '$'
+  elseif pos.string =~# '^\$'
     let pos.string = '$' . s:strdiff(pos.line - line('$'))
   elseif pos.string =~# '^\d\+$'
     let pos.string = '' . pos.line
