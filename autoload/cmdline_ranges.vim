@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/12 13:48:04.
+" Last Change: 2013/11/14 01:20:13.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -19,6 +19,11 @@ endfunction
 function! s:absolute(line)
   let line = max([min([a:line, line('$')]), 1])
   return { 'line': line, 'string': '' . line }
+endfunction
+
+function! s:mark(mark)
+  let line = line(a:mark) ? line(a:mark) : line('.')
+  return { 'line': line, 'string': a:mark, 'markline': line }
 endfunction
 
 function! s:pattern(pat)
@@ -53,6 +58,8 @@ function! s:add(pos, diff)
     let pos.string = '$' . s:strdiff(pos.line - line('$'))
   elseif pos.string =~# '^\d\+$'
     let pos.string = '' . pos.line
+  elseif pos.string =~# '^'''
+    let pos.string = pos.string[:1] . s:strdiff(pos.line - pos.markline)
   elseif pos.string =~# '^[/?]'
     let num = s:parsenumber(matchstr(pos.string, '[+-]\d\+$'))
     let pos.string = substitute(pos.string, '[+-]\d\+$', '', '') . s:strdiff(num + a:diff)
@@ -118,6 +125,9 @@ function! s:parserange(string, prev)
     elseif string =~# '^\$'
       let str = matchstr(string, '^\$\s*')
       call add(range, s:last())
+    elseif string =~# '^''[a-zA-Z()<>{}"''.[\]\^]'
+      let str = matchstr(string, '^''[a-zA-Z()<>{}"''.[\]\^]')
+      call add(range, s:mark(str))
     elseif string =~# '^\(/\([^/]\|\\/\)\+/\s*\|?\([^?]\|\\?\)\+?\s*\)\+'
       let str = matchstr(string, '^\(/\([^/]\|\\/\)\+/\s*\|?\([^?]\|\\?\)\+?\s*\)\+')
       call add(range, s:pattern(str))
@@ -172,6 +182,7 @@ function! s:same(range)
   return a:range[0].string =~# '^\d\+$' && a:range[1].string =~# '^\d\+$'
         \ || a:range[0].string =~# '^\..\+$' && a:range[1].string =~# '^\..\+$'
         \ || a:range[0].string =~# '^\$.\+$' && a:range[1].string =~# '^\$.\+$'
+        \ || a:range[0].string =~# '^''' && a:range[1].string =~# '^'''
 endfunction
 
 function! s:addrange(range, diff)
