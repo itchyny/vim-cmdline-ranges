@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/14 01:20:13.
+" Last Change: 2013/11/14 01:26:35.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -73,19 +73,20 @@ function! s:strrange(range)
     return a:range[0].string
   endif
   let [from, to; rest] = a:range
+  let separator = s:semicolon ? ';' : ','
   if from.line == to.line && from.string !~# '^[/?]' && to.string !~# '^[/?]'
     if from.string ==# '.' && to.string ==# '.'
       return ''
     elseif from.string ==# '.' || to.string ==# '$'
-      return from.string . ',' . to.string
+      return from.string . separator . to.string
     elseif to.string ==# '.' || from.string ==# '$'
-      return to.string . ',' . from.string
+      return to.string . separator . from.string
     endif
   endif
   if from.line <= to.line
-    let ret = from.string . ',' . to.string
+    let ret = from.string . separator . to.string
   else
-    let ret = to.string . ',' . from.string
+    let ret = to.string . separator . from.string
   endif
   return ret ==# '1,$' ? '%' : ret
 endfunction
@@ -103,6 +104,7 @@ function! s:parsenumber(numstr)
   endif
 endfunction
 
+let s:semicolon = 0
 function! s:parserange(string, prev)
   let string = a:string
   let str = matchstr(string, '^[: \t]\+')
@@ -147,8 +149,9 @@ function! s:parserange(string, prev)
       let string = string[len(str):]
     endwhile
     if i == 0
-      if string =~# '^\s*,\s*'
-        let str = matchstr(string, '^\s*,\s*')
+      if string =~# '^\s*[,;]\s*'
+        let str = matchstr(string, '^\s*[,;]\s*')
+        let s:semicolon = str =~# ';'
         let string = string[len(str):]
         if flg
           call add(range, s:absolute(num))
