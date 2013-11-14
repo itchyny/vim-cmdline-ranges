@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/14 01:30:19.
+" Last Change: 2013/11/14 18:46:40.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -178,7 +178,7 @@ function! s:parserange(string, prev)
 endfunction
 
 function! s:point(pos)
-  return 8 * !(a:pos.string ==# '.') + 4 * (a:pos.string =~# '^\$') + 2 * (a:pos.string =~# '^\.') + !(a:pos.string =~# '^[/?]')
+  return 16 * !(a:pos.string ==# '.') + 8 * (a:pos.string =~# '^\$') + 4 * (a:pos.string =~# '^\''') + 2 * (a:pos.string =~# '^\.') + !(a:pos.string =~# '^[/?]')
 endfunction
 
 function! s:same(range)
