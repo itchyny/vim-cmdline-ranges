@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2013/11/14 18:46:40.
+" Last Change: 2013/11/17 19:18:14.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -74,16 +74,15 @@ function! s:strrange(range)
   endif
   let [from, to; rest] = a:range
   let separator = s:semicolon ? ';' : ','
-  if from.line == to.line && from.string !~# '^[/?]' && to.string !~# '^[/?]'
+  if from.line == to.line
     if from.string ==# '.' && to.string ==# '.'
-      return ''
-    elseif from.string ==# '.' || to.string ==# '$'
-      return from.string . separator . to.string
-    elseif to.string ==# '.' || from.string ==# '$'
-      return to.string . separator . from.string
+      let ret = ''
+    elseif s:point(from) <= s:point(to)
+      let ret = from.string . separator . to.string
+    else
+      let ret = to.string . separator . from.string
     endif
-  endif
-  if from.line <= to.line
+  elseif from.line <= to.line
     let ret = from.string . separator . to.string
   else
     let ret = to.string . separator . from.string
