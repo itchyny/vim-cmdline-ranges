@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/13 08:51:04.
+" Last Change: 2014/06/13 18:37:10.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -317,6 +317,30 @@ endfunction
 
 function! cmdline_ranges#{char2nr('p')}(range, prev)
   return s:p(a:range, a:prev)
+endfunction
+
+function! s:i(range, prev)
+  let indent = indent(line('.'))
+  let start_line = line('.')
+  let end_line = line('.')
+  if getline('.') != ''
+    while start_line > 0 && (indent(start_line - 1) >= indent && getline(start_line - 1) != '' || indent && getline(start_line - 1) == '')
+      let start_line -= 1
+    endwhile
+    while end_line < line('$') && (indent(end_line + 1) >= indent && getline(end_line + 1) != '' || indent && getline(end_line + 1) == '')
+      let end_line += 1
+    endwhile
+  endif
+  if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
+    return [s:add(s:cursor(), start_line - line('.')), s:add(s:cursor(), end_line - line('.'))]
+  else
+    let [start, last] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
+    return [s:add(start, start_line - start.line), s:add(last, end_line - last.line)]
+  endif
+endfunction
+
+function! cmdline_ranges#{char2nr('i')}(range, prev)
+  return s:i(a:range, a:prev)
 endfunction
 
 function! cmdline_ranges#range(motion, prev)

@@ -4,7 +4,7 @@ Version: 0.0
 Author: itchyny (https://github.com/itchyny)
 License: MIT License
 Repository: https://github.com/itchyny/vim-cmdline-ranges
-Last Change: 2014/06/13 16:49:41.
+Last Change: 2014/06/13 20:05:53.
 
 CONTENTS					*cmdline_ranges-contents*
 
@@ -47,7 +47,7 @@ a case, you have to cancel the command line >
 <But using this plugin, you can extend the range by just pressing j. >
 		2:j
 		" :.,.+2
-<You can change the cmdline-range by using j, k, gg, G, {, } and % in the
+<You can change the cmdline-range by using j, k, gg, G, {, }, %, p and i in the
 command line.
 
 ------------------------------------------------------------------------------
@@ -76,6 +76,10 @@ likely as they moves the cursor in the normal mode.
 <Plug>(cmdline-ranges-p)			*<Plug>(cmdline-ranges-p)*
 	Select the paragraph.
 
+<Plug>(cmdline-ranges-i)			*<Plug>(cmdline-ranges-i)*
+	Select the lines which is deeper or the same indent of the current
+	line.
+
 Command line mode default mappings.
 {lhs}		{rhs}
 --------	------------------------
@@ -87,6 +91,7 @@ g		|<Plug>(cmdline-ranges-g)|
 G		|<Plug>(cmdline-ranges-G)|
 %		|<Plug>(cmdline-ranges-%)|
 p		|<Plug>(cmdline-ranges-p)|
+i		|<Plug>(cmdline-ranges-i)|
 
 ==============================================================================
 CHANGELOG					*cmdline_ranges-changelog*

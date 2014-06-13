@@ -2,7 +2,7 @@
 " Filename: plugin/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/13 08:43:02.
+" Last Change: 2014/06/13 18:12:14.
 " =============================================================================
 
 if exists('g:loaded_cmdline_ranges') && g:loaded_cmdline_ranges
@@ -20,6 +20,7 @@ cnoremap <expr> <Plug>(cmdline-ranges-g) cmdline_ranges#range('g', 'g')
 cnoremap <expr> <Plug>(cmdline-ranges-G) cmdline_ranges#range('G', '')
 cnoremap <expr> <Plug>(cmdline-ranges-%) cmdline_ranges#range('%', '')
 cnoremap <expr> <Plug>(cmdline-ranges-p) cmdline_ranges#range('p', '')
+cnoremap <expr> <Plug>(cmdline-ranges-i) cmdline_ranges#range('i', '')
 
 if get(g:, 'cmdline_ranges_default_mapping', 1)
   cmap j <Plug>(cmdline-ranges-j)
@@ -30,6 +31,7 @@ if get(g:, 'cmdline_ranges_default_mapping', 1)
   cmap G <Plug>(cmdline-ranges-G)
   cmap % <Plug>(cmdline-ranges-%)
   cmap p <Plug>(cmdline-ranges-p)
+  cmap i <Plug>(cmdline-ranges-i)
 endif
 
 let g:loaded_cmdline_ranges = 1
