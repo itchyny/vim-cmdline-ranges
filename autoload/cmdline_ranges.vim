@@ -2,14 +2,14 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/14 00:22:49.
+" Last Change: 2014/06/14 00:33:35.
 " =============================================================================
 
 let s:save_cpo = &cpo
 set cpo&vim
 
 function! s:cursor()
-  return { 'line': line('.'), 'string': '.' }
+  return s:relative(0)
 endfunction
 
 function! s:relative(num)
