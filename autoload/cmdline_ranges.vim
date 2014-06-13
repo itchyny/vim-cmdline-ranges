@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/14 00:38:39.
+" Last Change: 2014/06/14 00:47:05.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -15,7 +15,7 @@ endfunction
 let s:RELATIVE = 1
 function! s:relative(num)
   let line = max([min([line('.') + a:num, line('$')]), 1])
-  return { 'type': s:RELATIVE, 'line': line('.'), 'string': '.' . s:strdiff(line - line('.')) }
+  return { 'type': s:RELATIVE, 'line': line, 'string': '.' . s:strdiff(line - line('.')) }
 endfunction
 
 let s:LAST = 2
