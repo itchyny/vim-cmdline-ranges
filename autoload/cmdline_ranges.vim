@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/13 23:55:52.
+" Last Change: 2014/06/13 23:59:39.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -310,8 +310,8 @@ function! s:p(range, prev)
   if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
     return [s:add(s:cursor(), start_line - line('.')), s:add(s:cursor(), end_line - line('.'))]
   else
-    let [start, last] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
-    return [s:add(start, start_line - start.line), s:add(last, end_line - last.line)]
+    let [start, end] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
+    return [s:add(start, start_line - start.line), s:add(end, end_line - end.line)]
   endif
 endfunction
 
@@ -334,8 +334,8 @@ function! s:i(range, prev)
   if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
     return [s:add(s:cursor(), start_line - line('.')), s:add(s:cursor(), end_line - line('.'))]
   else
-    let [start, last] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
-    return [s:add(start, start_line - start.line), s:add(last, end_line - last.line)]
+    let [start, end] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
+    return [s:add(start, start_line - start.line), s:add(end, end_line - end.line)]
   endif
 endfunction
 
