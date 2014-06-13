@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/14 00:06:58.
+" Last Change: 2014/06/14 00:22:49.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -10,6 +10,11 @@ set cpo&vim
 
 function! s:cursor()
   return { 'line': line('.'), 'string': '.' }
+endfunction
+
+function! s:relative(num)
+  let line = max([min([line('.') + a:num, line('$')]), 1])
+  return { 'line': line('.'), 'string': '.' . s:strdiff(line - line('.')) }
 endfunction
 
 function! s:last()
@@ -38,7 +43,7 @@ endfunction
 function! s:unpattern(pos)
   if a:pos.string =~# '^[/?]'
     let num = s:parsenumber(matchstr(a:pos.string, '[+-]\d\+$'))
-    return s:add(s:cursor(), num)
+    return s:relative(num)
   else
     return a:pos
   endif
@@ -310,7 +315,7 @@ function! s:p(range, prev)
     let end_line += 1
   endwhile
   if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
-    return [s:add(s:cursor(), start_line - line('.')), s:add(s:cursor(), end_line - line('.'))]
+    return [s:relative(start_line - line('.')), s:relative(end_line - line('.'))]
   else
     let [start, end] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
     return [s:add(start, start_line - start.line), s:add(end, end_line - end.line)]
@@ -334,7 +339,7 @@ function! s:i(range, prev)
     endwhile
   endif
   if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
-    return [s:add(s:cursor(), start_line - line('.')), s:add(s:cursor(), end_line - line('.'))]
+    return [s:relative(start_line - line('.')), s:relative(end_line - line('.'))]
   else
     let [start, end] = [s:unpattern(a:range[0]), s:unpattern(a:range[1])]
     return [s:add(start, start_line - start.line), s:add(end, end_line - end.line)]
