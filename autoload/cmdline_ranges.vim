@@ -177,7 +177,11 @@ function! s:parserange(string, prev)
 endfunction
 
 function! s:point(pos)
-  return 16 * !(a:pos.string ==# '.') + 8 * (a:pos.string =~# '^\$') + 4 * (a:pos.string =~# '^\''') + 2 * (a:pos.string =~# '^\.') + !(a:pos.string =~# '^[/?]')
+  return   16 * (a:pos.string !=# '.')
+        \ + 8 * (a:pos.string =~# '^\$')
+        \ + 4 * (a:pos.string =~# '^\''')
+        \ + 2 * (a:pos.string =~# '^\.')
+        \ +     (a:pos.string !~# '^[/?]')
 endfunction
 
 function! s:same(range)
