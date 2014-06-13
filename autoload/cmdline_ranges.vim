@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/14 00:01:46.
+" Last Change: 2014/06/14 00:06:58.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -106,8 +106,7 @@ endfunction
 let s:semicolon = 0
 function! s:parserange(string, prev)
   let string = a:string
-  let str = matchstr(string, '^[: \t]\+')
-  let string = string[len(str):]
+  let [str, string] = s:getmatchstr(string, '^[: \t]\+')
   let range = []
   for i in [0, 1]
     let num = 0
@@ -137,7 +136,7 @@ function! s:parserange(string, prev)
     endif
     let string = string[len(str):]
     while string =~# '^[+-]\s*\d\+\s*'
-      let str = matchstr(string, '^[+-]\s*\d\+\s*')
+      let [str, string] = s:getmatchstr(string, '^[+-]\s*\d\+\s*')
       if flg
         let num += s:parsenumber(str)
       elseif (range[-1].string ==# '.' || range[-1].string ==# '$') && str =~# '^[+-]\s*0'
@@ -145,13 +144,11 @@ function! s:parserange(string, prev)
       else
         let range[-1] = s:add(range[-1], s:parsenumber(str))
       endif
-      let string = string[len(str):]
     endwhile
     if i == 0
       if string =~# '^\s*[,;]\s*'
-        let str = matchstr(string, '^\s*[,;]\s*')
+        let [str, string] = s:getmatchstr(string, '^\s*[,;]\s*')
         let s:semicolon = str =~# ';'
-        let string = string[len(str):]
         if flg
           call add(range, s:absolute(num))
         endif
@@ -174,6 +171,11 @@ function! s:parserange(string, prev)
     endif
   endfor
   return []
+endfunction
+
+function! s:getmatchstr(str, pat)
+  let str = matchstr(a:str, a:pat)
+  return [str, a:str[len(str):]]
 endfunction
 
 function! s:point(pos)
