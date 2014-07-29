@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/06/14 00:47:05.
+" Last Change: 2014/07/28 01:50:10.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -336,10 +336,10 @@ function! s:i(range, prev)
   let start_line = line('.')
   let end_line = line('.')
   if getline('.') != ''
-    while start_line > 0 && (indent(start_line - 1) >= indent && getline(start_line - 1) != '' || indent && getline(start_line - 1) == '')
+    while start_line > 0 && indent(start_line - 1) >= indent && getline(start_line - 1) != ''
       let start_line -= 1
     endwhile
-    while end_line < line('$') && (indent(end_line + 1) >= indent && getline(end_line + 1) != '' || indent && getline(end_line + 1) == '')
+    while end_line < line('$') && indent(end_line + 1) >= indent && getline(end_line + 1) != ''
       let end_line += 1
     endwhile
   endif
