@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/07/28 01:50:10.
+" Last Change: 2014/12/04 08:29:55.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -307,6 +307,10 @@ function! cmdline_ranges#{char2nr('g')}(range, prev)
 endfunction
 
 function! cmdline_ranges#{char2nr('G')}(range, prev)
+  return s:gG(a:range, a:prev, 1)
+endfunction
+
+function! cmdline_ranges#{char2nr('$')}(range, prev)
   return s:gG(a:range, a:prev, 1)
 endfunction
 
