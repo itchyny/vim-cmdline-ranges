@@ -2,50 +2,50 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/12/04 08:29:55.
+" Last Change: 2014/12/17 00:18:13.
 " =============================================================================
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:cursor()
+function! s:cursor() abort
   return s:relative(0)
 endfunction
 
 let s:RELATIVE = 1
-function! s:relative(num)
+function! s:relative(num) abort
   let line = max([min([line('.') + a:num, line('$')]), 1])
   return { 'type': s:RELATIVE, 'line': line, 'string': '.' . s:strdiff(line - line('.')) }
 endfunction
 
 let s:LAST = 2
-function! s:last()
+function! s:last() abort
   return { 'type': s:LAST, 'line': line('$'), 'string': '$' }
 endfunction
 
 let s:ABSOLUTE = 3
-function! s:absolute(line)
+function! s:absolute(line) abort
   let line = max([min([a:line, line('$')]), 1])
   return { 'type': s:ABSOLUTE, 'line': line, 'string': '' . line }
 endfunction
 
 let s:MARK = 4
-function! s:mark(mark)
+function! s:mark(mark) abort
   let line = line(a:mark) ? line(a:mark) : line('.')
   return { 'type': s:MARK, 'line': line, 'string': a:mark, 'markline': line }
 endfunction
 
 let s:PATTERN = 5
-function! s:pattern(pat)
+function! s:pattern(pat) abort
   " TODO: calculate line
   return { 'type': s:PATTERN, 'line': line('.'), 'string': a:pat }
 endfunction
 
-function! s:strdiff(num)
+function! s:strdiff(num) abort
   return a:num == 0 ? '' : a:num > 0 ? '+' . a:num : '' . a:num
 endfunction
 
-function! s:unpattern(pos)
+function! s:unpattern(pos) abort
   if a:pos.string =~# '^[/?]'
     let num = s:parsenumber(matchstr(a:pos.string, '[+-]\d\+$'))
     return s:relative(num)
@@ -54,12 +54,12 @@ function! s:unpattern(pos)
   endif
 endfunction
 
-function! s:range(range)
+function! s:range(range) abort
   let range = [a:range[0].line, a:range[1].line]
   return range[0] >= range[1] ? [range[1], range[0]] : range
 endfunction
 
-function! s:add(pos, diff)
+function! s:add(pos, diff) abort
   let pos = copy(a:pos)
   let pos.line = max([min([a:pos.line + a:diff, line('$')]), 1])
   if pos.string =~# '^\.'
@@ -78,7 +78,7 @@ function! s:add(pos, diff)
   return pos
 endfunction
 
-function! s:strrange(range)
+function! s:strrange(range) abort
   if len(a:range) == 1
     return a:range[0].string
   endif
@@ -100,7 +100,7 @@ function! s:strrange(range)
   return ret ==# '1,$' ? '%' : ret
 endfunction
 
-function! s:parsenumber(numstr)
+function! s:parsenumber(numstr) abort
   let numstr = substitute(a:numstr, '\s\+', '', 'g')
   if len(numstr)
     if numstr[0] == '+'
@@ -114,7 +114,7 @@ function! s:parsenumber(numstr)
 endfunction
 
 let s:semicolon = 0
-function! s:parserange(string, prev)
+function! s:parserange(string, prev) abort
   let string = a:string
   let [str, string] = s:getmatchstr(string, '^[: \t]\+')
   let range = []
@@ -183,12 +183,12 @@ function! s:parserange(string, prev)
   return []
 endfunction
 
-function! s:getmatchstr(str, pat)
+function! s:getmatchstr(str, pat) abort
   let str = matchstr(a:str, a:pat)
   return [str, a:str[len(str):]]
 endfunction
 
-function! s:point(pos)
+function! s:point(pos) abort
   return   16 * (a:pos.string !=# '.')
         \ + 8 * (a:pos.string =~# '^\$')
         \ + 4 * (a:pos.string =~# '^\''')
@@ -196,14 +196,14 @@ function! s:point(pos)
         \ +     (a:pos.string !~# '^[/?]')
 endfunction
 
-function! s:same(range)
+function! s:same(range) abort
   return     a:range[0].string =~# '^\d\+$'  && a:range[1].string =~# '^\d\+$'
         \ || a:range[0].string =~# '^\..\+$' && a:range[1].string =~# '^\..\+$'
         \ || a:range[0].string =~# '^\$.\+$' && a:range[1].string =~# '^\$.\+$'
         \ || a:range[0].string =~# '^'''     && a:range[1].string =~# '^'''
 endfunction
 
-function! s:addrange(range, diff)
+function! s:addrange(range, diff) abort
   if len(a:range) == 1
     return [s:add(a:range[0], a:diff)]
   endif
@@ -230,7 +230,7 @@ endfunction
 
 let s:prevrange = []
 let s:curpos = 0
-function! s:index(range)
+function! s:index(range) abort
   if len(a:range) == 1
     return 0
   endif
@@ -244,7 +244,7 @@ function! s:index(range)
   return idx
 endfunction
 
-function! s:paragraph(range, prev, forward)
+function! s:paragraph(range, prev, forward) abort
   let num = len(a:range) > 2 ? a:range[2] : 1
   let line = a:range[s:index(a:range)].line
   let start_line = line
@@ -259,28 +259,28 @@ function! s:paragraph(range, prev, forward)
   return s:addrange(a:range, line - start_line)
 endfunction
 
-function! cmdline_ranges#{char2nr('{')}(range, prev)
+function! cmdline_ranges#{char2nr('{')}(range, prev) abort
   return s:paragraph(a:range, a:prev, 0)
 endfunction
 
-function! cmdline_ranges#{char2nr('}')}(range, prev)
+function! cmdline_ranges#{char2nr('}')}(range, prev) abort
   return s:paragraph(a:range, a:prev, 1)
 endfunction
 
-function! s:jk(range, prev, forward)
+function! s:jk(range, prev, forward) abort
   let diff = (len(a:range) == 3 ? a:range[2] : 1) * (a:forward ? 1 : -1)
   return s:addrange(a:range, diff)
 endfunction
 
-function! cmdline_ranges#{char2nr('k')}(range, prev)
+function! cmdline_ranges#{char2nr('k')}(range, prev) abort
   return s:jk(a:range, a:prev, 0)
 endfunction
 
-function! cmdline_ranges#{char2nr('j')}(range, prev)
+function! cmdline_ranges#{char2nr('j')}(range, prev) abort
   return s:jk(a:range, a:prev, 1)
 endfunction
 
-function! cmdline_ranges#{char2nr('%')}(range, prev)
+function! cmdline_ranges#{char2nr('%')}(range, prev) abort
   if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev || len(a:range) == 1
     return [s:absolute(1), s:last()]
   else
@@ -288,7 +288,7 @@ function! cmdline_ranges#{char2nr('%')}(range, prev)
   endif
 endfunction
 
-function! s:gG(range, prev, forward)
+function! s:gG(range, prev, forward) abort
   let range = deepcopy(a:range)
   if substitute(getcmdline(), '\s\+', '', 'g') ==# a:prev
     return [range[0], a:forward ? s:last() : s:absolute(1)]
@@ -302,19 +302,19 @@ function! s:gG(range, prev, forward)
   endif
 endfunction
 
-function! cmdline_ranges#{char2nr('g')}(range, prev)
+function! cmdline_ranges#{char2nr('g')}(range, prev) abort
   return s:gG(a:range, a:prev, 0)
 endfunction
 
-function! cmdline_ranges#{char2nr('G')}(range, prev)
+function! cmdline_ranges#{char2nr('G')}(range, prev) abort
   return s:gG(a:range, a:prev, 1)
 endfunction
 
-function! cmdline_ranges#{char2nr('$')}(range, prev)
+function! cmdline_ranges#{char2nr('$')}(range, prev) abort
   return s:gG(a:range, a:prev, 1)
 endfunction
 
-function! s:p(range, prev)
+function! s:p(range, prev) abort
   let start_line = line('.')
   while start_line > 0 && getline(start_line - 1) !~# '^\s*$'
     let start_line -= 1
@@ -331,11 +331,11 @@ function! s:p(range, prev)
   endif
 endfunction
 
-function! cmdline_ranges#{char2nr('p')}(range, prev)
+function! cmdline_ranges#{char2nr('p')}(range, prev) abort
   return s:p(a:range, a:prev)
 endfunction
 
-function! s:i(range, prev)
+function! s:i(range, prev) abort
   let indent = indent(line('.'))
   let start_line = line('.')
   let end_line = line('.')
@@ -355,11 +355,11 @@ function! s:i(range, prev)
   endif
 endfunction
 
-function! cmdline_ranges#{char2nr('i')}(range, prev)
+function! cmdline_ranges#{char2nr('i')}(range, prev) abort
   return s:i(a:range, a:prev)
 endfunction
 
-function! cmdline_ranges#range(motion, prev)
+function! cmdline_ranges#range(motion, prev) abort
   if mode() == 'c' && getcmdtype() == ':'
     let endcu = "\<End>\<C-u>"
     let range = s:parserange(getcmdline(), a:prev)
