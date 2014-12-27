@@ -2,12 +2,13 @@
 " Filename: plugin/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/12/05 15:45:44.
+" Last Change: 2014/12/26 21:29:46.
 " =============================================================================
 
-if exists('g:loaded_cmdline_ranges') && g:loaded_cmdline_ranges
+if exists('g:loaded_cmdline_ranges') || v:version < 700
   finish
 endif
+let g:loaded_cmdline_ranges = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -34,8 +35,6 @@ if get(g:, 'cmdline_ranges_default_mapping', 1)
   cmap p <Plug>(cmdline-ranges-p)
   cmap i <Plug>(cmdline-ranges-i)
 endif
-
-let g:loaded_cmdline_ranges = 1
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
