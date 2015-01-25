@@ -1,10 +1,10 @@
 *cmdline_ranges.txt*	Easy cmdline-ranges editing
 
-Version: 0.0
+Version: 0.1
 Author: itchyny (https://github.com/itchyny)
 License: MIT License
 Repository: https://github.com/itchyny/vim-cmdline-ranges
-Last Change: 2014/06/13 20:05:53.
+Last Change: 2015/01/26 00:18:08.
 
 CONTENTS					*cmdline_ranges-contents*
 
@@ -28,10 +28,10 @@ we start with the following strokes >
 		{:}s/
 		" :.,.+ns/
 <Moreover, this plugin provides a very useful mappings for selecting the
-paragraph. >
+paragraph. If you map p to |<Plug>(cmdline-ranges-p)|, >
 		:ps/
 		" :.-n,.+ms/
-<It enables you to start substitution quickly.
+you can start substitution quickly.
 
 Here's another example. When we substitute a word in the proceeding 2 lines,
 we start with >
@@ -47,8 +47,8 @@ a case, you have to cancel the command line >
 <But using this plugin, you can extend the range by just pressing j. >
 		2:j
 		" :.,.+2
-<You can change the cmdline-range by using j, k, gg, G, {, }, %, p and i in the
-command line.
+<You can change the cmdline-range by using j, k, {, }, $ and % in the command
+line.
 
 ------------------------------------------------------------------------------
 KEY MAPPINGS					*cmdline_ranges-key-mappings*
@@ -70,6 +70,9 @@ likely as they moves the cursor in the normal mode.
 <Plug>(cmdline-ranges-G)			*<Plug>(cmdline-ranges-G)*
 	Go to the end of the buffer.
 
+<Plug>(cmdline-ranges-$)			*<Plug>(cmdline-ranges-$)*
+	Go to the end of the buffer.
+
 <Plug>(cmdline-ranges-%)			*<Plug>(cmdline-ranges-%)*
 	Select the entire buffer.
 
@@ -87,17 +90,39 @@ j		|<Plug>(cmdline-ranges-j)|
 k		|<Plug>(cmdline-ranges-k)|
 }		|<Plug>(cmdline-ranges-})|
 {		|<Plug>(cmdline-ranges-{)|
-g		|<Plug>(cmdline-ranges-g)|
-G		|<Plug>(cmdline-ranges-G)|
+$		|<Plug>(cmdline-ranges-$)|
 %		|<Plug>(cmdline-ranges-%)|
-p		|<Plug>(cmdline-ranges-p)|
-i		|<Plug>(cmdline-ranges-i)|
 
 ==============================================================================
 CHANGELOG					*cmdline_ranges-changelog*
 
+0.1	2013-11-04, 11-07, 11-09, 11-14, 11-17, 2014-02-06, 03-14, 06-13,
+	06-14, 07-02, 07-29, 12-06, 12-24, 12-27, 2015-01-26
+	- Implement <Plug>(cmdline-ranges-j)
+	- Implement <Plug>(cmdline-ranges-k)
+	- Implement <Plug>(cmdline-ranges-%)
+	- Implement g:cmdline_ranges_default_mapping
+	- Use autoload
+	- Refactoring
+	- Support for ranges
+	- Fix many bugs
+	- Add LICENSE
+	- Speed up
+	- Add document
+	- Implement <Plug>(cmdline-ranges-p)
+	- Implement <Plug>(cmdline-ranges-i)
+	- add .gitignore
+	- Remove G mapping
+	- Use abort
+	- Check v:version
+	- Remove some default mappings
+
 0.0	2013-10-30
-	- Initial commit and implementation
+	- Implement <Plug>(cmdline-ranges-})
+	- Implement <Plug>(cmdline-ranges-{)
+	- Implement <Plug>(cmdline-ranges-g)
+	- Implement <Plug>(cmdline-ranges-G)
+	- Initial commit
 
 ==============================================================================
 vim:tw=78:sw=4:ts=8:ft=help:norl:noet:
