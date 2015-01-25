@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2014/12/17 00:18:13.
+" Last Change: 2015/01/21 11:04:20.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -103,7 +103,7 @@ endfunction
 function! s:parsenumber(numstr) abort
   let numstr = substitute(a:numstr, '\s\+', '', 'g')
   if len(numstr)
-    if numstr[0] == '+'
+    if numstr[0] ==# '+'
       return 0 + numstr[1:]
     else
       return 0 + numstr
@@ -339,11 +339,11 @@ function! s:i(range, prev) abort
   let indent = indent(line('.'))
   let start_line = line('.')
   let end_line = line('.')
-  if getline('.') != ''
-    while start_line > 0 && indent(start_line - 1) >= indent && getline(start_line - 1) != ''
+  if getline('.') !=# ''
+    while start_line > 0 && indent(start_line - 1) >= indent && getline(start_line - 1) !=# ''
       let start_line -= 1
     endwhile
-    while end_line < line('$') && indent(end_line + 1) >= indent && getline(end_line + 1) != ''
+    while end_line < line('$') && indent(end_line + 1) >= indent && getline(end_line + 1) !=# ''
       let end_line += 1
     endwhile
   endif
@@ -360,7 +360,7 @@ function! cmdline_ranges#{char2nr('i')}(range, prev) abort
 endfunction
 
 function! cmdline_ranges#range(motion, prev) abort
-  if mode() == 'c' && getcmdtype() == ':'
+  if mode() ==# 'c' && getcmdtype() ==# ':'
     let endcu = "\<End>\<C-u>"
     let range = s:parserange(getcmdline(), a:prev)
     if len(range)
