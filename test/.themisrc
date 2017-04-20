@@ -1,0 +1,18 @@
+let s:assert = themis#helper('assert')
+
+function! Setup(contents) abort
+  command! -range Range let s:range = [<line1>, <line2>]
+  %delete _
+  call setline(1, map(split(a:contents, '\zs'), 'matchstr(v:val, "\\S")'))
+endfunction
+
+function! TestCmdline(cmdtype, expected) abort
+  call s:assert.equals(getcmdtype(), a:cmdtype)
+  call s:assert.equals(getcmdline(), a:expected)
+  return ''
+endfunction
+
+function! Test(keys, expected, range) abort
+  call feedkeys(a:keys . "\<C-r>=TestCmdline(':', " . string(a:expected) . ")\<CR>Range\<CR>", 'tx')
+  call s:assert.equals(s:range, a:range)
+endfunction
