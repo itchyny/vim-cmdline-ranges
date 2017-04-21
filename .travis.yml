@@ -9,8 +9,7 @@ install:
 
 cache:
   directories:
-    - $HOME/vim-8.0.0000
-    - $HOME/vim-7.4.1151
+    - $HOME/vim-$VIM_VERSION
 
 env:
   - VIM_VERSION=8.0.0000 PATH=$HOME/vim-$VIM_VERSION/bin/:$PATH
