@@ -16,4 +16,5 @@ env:
   - VIM_VERSION=7.4.1151 PATH=$HOME/vim-$VIM_VERSION/bin/:$PATH
 
 script:
+  - vim --version
   - /tmp/themis/bin/themis
