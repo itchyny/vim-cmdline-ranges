@@ -13,6 +13,9 @@ cache:
     - $HOME/vim-8.0.0000
     - $HOME/vim-7.4.1151
 
+env:
+  - PATH=$HOME/vim-8.0.0000/bin/:$PATH
+  - PATH=$HOME/vim-7.4.1151/bin/:$PATH
+
 script:
-  - PATH=$HOME/vim-8.0.0000/bin/:$PATH /tmp/themis/bin/themis
-  - PATH=$HOME/vim-7.4.1151/bin/:$PATH /tmp/themis/bin/themis
+  - /tmp/themis/bin/themis
