@@ -17,4 +17,4 @@ env:
 
 script:
   - vim --version
-  - /tmp/themis/bin/themis
+  - /tmp/themis/bin/themis --reporter spec
