@@ -63,6 +63,17 @@ function! s:suite.updown_multiple_count()
   call Test(":\<C-v>$ + 3 - 3 - 3 kkk", '$-9', [16, 16])
 endfunction
 
+function! s:suite.updown_relative()
+  10
+  call Test(':.-2,.+2', '.-2,.+2', [8, 12])
+  call Test(':.-2,.+2jj', '.-2,.+4', [8, 14])
+  call Test(':.-2,.+2jjkkkk', '.-2,.+0', [8, 10])
+  call Test(':.-2,.+2jjkkkkkkk', '.-3,.-2', [7, 8])
+  call Test(':.-2,.+2jjkkkkkkkjjj', '.-2,.+0', [8, 10])
+  call Test(':.-30,.+30j', '.-9,.+15', [1, 25])
+  call Test(':.-30,.+30kk', '.-9,.+13', [1, 23])
+endfunction
+
 function! s:suite.updown_absolute()
   call Test(':10,10jjj', '10,13', [10, 13])
   call Test(':10,13kkk', '10,10', [10, 10])
@@ -71,9 +82,18 @@ function! s:suite.updown_absolute()
   call Test(':13,10jjj', '13,13', [13, 13])
 endfunction
 
+function! s:suite.updown_last()
+  call Test(":\<C-v>$-20,$-10", '$-20,$-10', [5, 15])
+  call Test(":\<C-v>$-20,$-10kkkkk", '$-20,$-15', [5, 10])
+  call Test(":\<C-v>$-20,$-17kkkkk", '$-22,$-20', [3, 5])
+  call Test(":\<C-v>$-20,$-3jjj", '$-20,$-0', [5, 25])
+  call Test(":\<C-v>$-20,$-3jjjkkk", '$-20,$-3', [5, 22])
+endfunction
+
 function! s:suite.updown_entire()
   call Test(':%jj', '%', [1, 25])
   call Test(':%kkk', '1,$-3', [1, 22])
+  call Test(':%kkkjjj', '%', [1, 25])
 endfunction
 
 function! s:suite.updown_mixed()
