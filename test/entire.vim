@@ -1,4 +1,4 @@
-let s:suite = themis#suite('buffer')
+let s:suite = themis#suite('entire')
 let s:assert = themis#helper('assert')
 
 function! s:suite.before_each()
