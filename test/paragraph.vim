@@ -2,7 +2,7 @@ let s:suite = themis#suite('paragraph')
 let s:assert = themis#helper('assert')
 
 function! s:suite.before_each()
-  call Setup('  12345  6789    12345   ')
+  call Setup("  12345  6\t\t8    12345   ")
 endfunction
 
 function! s:suite.paragraph()
