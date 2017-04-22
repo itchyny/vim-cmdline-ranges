@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2015/01/21 11:04:20.
+" Last Change: 2017/04/22 17:13:14.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -245,16 +245,18 @@ function! s:index(range) abort
 endfunction
 
 function! s:paragraph(range, prev, forward) abort
-  let num = len(a:range) > 2 ? a:range[2] : 1
   let line = a:range[s:index(a:range)].line
   let start_line = line
-  let last = line('$')
   let diff = a:forward ? 1 : -1
-  while num > 0 && 1 <= line && line <= last
-    let line += diff
-    if getline(line) ==# ''
-      let num -= 1
-    endif
+  let cnt = len(a:range) == 3 ? a:range[2] : 1
+  while cnt > 0
+    while 1 <= line && line <= line('$') && getline(line) ==# ''
+      let line += diff
+    endwhile
+    while 1 <= line && line <= line('$') && getline(line) !=# ''
+      let line += diff
+    endwhile
+    let cnt -= 1
   endwhile
   return s:addrange(a:range, line - start_line)
 endfunction
