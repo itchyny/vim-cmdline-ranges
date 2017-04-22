@@ -3,7 +3,7 @@ let s:assert = themis#helper('assert')
 function! Setup(contents) abort
   command! -range Range let s:range = [<line1>, <line2>]
   %delete _
-  call setline(1, map(split(a:contents, '\zs'), 'matchstr(v:val, "\\S")'))
+  call setline(1, map(split(a:contents, '\zs'), 'matchstr(v:val, "[^ ]")'))
 endfunction
 
 function! TestCmdline(cmdtype, expected) abort
