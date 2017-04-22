@@ -5,7 +5,7 @@ function! s:suite.before_each()
   call Setup('  12345  6789    12345   ')
 endfunction
 
-function! s:suite.updown_basic()
+function! s:suite.updown()
   call Test(':kkk', '', [1, 1])
   call Test(':jjj', '.,.+3', [1, 4])
   8
@@ -32,7 +32,7 @@ function! s:suite.updown_count()
   call Test(':30j', '', [25, 25])
 endfunction
 
-function! s:suite.updown_current()
+function! s:suite.updown_relative()
   call Test(':.jjj', '.+3', [4, 4])
   call Test(':.kkk', '.', [1, 1])
   8
@@ -63,7 +63,7 @@ function! s:suite.updown_multiple_count()
   call Test(":\<C-v>$ + 3 - 3 - 3 kkk", '$-9', [16, 16])
 endfunction
 
-function! s:suite.updown_relative()
+function! s:suite.updown_relative_relative()
   10
   call Test(':.-2,.+2', '.-2,.+2', [8, 12])
   call Test(':.-2,.+2jj', '.-2,.+4', [8, 14])
@@ -74,7 +74,7 @@ function! s:suite.updown_relative()
   call Test(':.-30,.+30kk', '.-9,.+13', [1, 23])
 endfunction
 
-function! s:suite.updown_absolute()
+function! s:suite.updown_absolute_absolute()
   call Test(':10,10jjj', '10,13', [10, 13])
   call Test(':10,13kkk', '10,10', [10, 10])
   call Test(':10,13kkkkkk', '7,10', [7, 10])
@@ -82,7 +82,7 @@ function! s:suite.updown_absolute()
   call Test(':13,10jjj', '13,13', [13, 13])
 endfunction
 
-function! s:suite.updown_last()
+function! s:suite.updown_last_last()
   call Test(":\<C-v>$-20,$-10", '$-20,$-10', [5, 15])
   call Test(":\<C-v>$-20,$-10kkkkk", '$-20,$-15', [5, 10])
   call Test(":\<C-v>$-20,$-17kkkkk", '$-22,$-20', [3, 5])
