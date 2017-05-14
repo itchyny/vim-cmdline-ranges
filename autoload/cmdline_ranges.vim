@@ -2,7 +2,7 @@
 " Filename: autoload/cmdline_ranges.vim
 " Author: itchyny
 " License: MIT License
-" Last Change: 2017/04/22 18:28:30.
+" Last Change: 2017/05/15 00:50:17.
 " =============================================================================
 
 let s:save_cpo = &cpo
@@ -12,33 +12,28 @@ function! s:cursor() abort
   return s:relative(0)
 endfunction
 
-let s:RELATIVE = 1
 function! s:relative(num) abort
   let line = max([min([line('.') + a:num, line('$')]), 1])
-  return { 'type': s:RELATIVE, 'line': line, 'string': '.' . s:strdiff(line - line('.')) }
+  return { 'line': line, 'string': '.' . s:strdiff(line - line('.')) }
 endfunction
 
-let s:LAST = 2
 function! s:last() abort
-  return { 'type': s:LAST, 'line': line('$'), 'string': '$' }
+  return { 'line': line('$'), 'string': '$' }
 endfunction
 
-let s:ABSOLUTE = 3
 function! s:absolute(line) abort
   let line = max([min([a:line, line('$')]), 1])
-  return { 'type': s:ABSOLUTE, 'line': line, 'string': '' . line }
+  return { 'line': line, 'string': '' . line }
 endfunction
 
-let s:MARK = 4
 function! s:mark(mark) abort
   let line = line(a:mark) ? line(a:mark) : line('.')
-  return { 'type': s:MARK, 'line': line, 'string': a:mark, 'markline': line }
+  return { 'line': line, 'string': a:mark, 'markline': line }
 endfunction
 
-let s:PATTERN = 5
 function! s:pattern(pat) abort
   " TODO: calculate line
-  return { 'type': s:PATTERN, 'line': line('.'), 'string': a:pat }
+  return { 'line': line('.'), 'string': a:pat }
 endfunction
 
 function! s:strdiff(num) abort
