@@ -1,4 +1,4 @@
-# vim-cmdline-ranges &emsp; [![Build Status](https://api.travis-ci.org/itchyny/vim-cmdline-ranges.svg?branch=master)](https://travis-ci.org/itchyny/vim-cmdline-ranges)
+# vim-cmdline-ranges [![CI Status](https://github.com/itchyny/vim-cmdline-ranges/workflows/CI/badge.svg)](https://github.com/itchyny/vim-cmdline-ranges/actions)
 This plugin improves cmdline-ranges for Vim.
 
 ## Author
